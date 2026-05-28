@@ -64,6 +64,12 @@ claim useful_scaffold "produce a minimal project scaffold" {
 
 Pre-alpha / research scaffold. The v0 parser is intentionally permissive and exists to make the first examples executable. The grammar, schema, and checker rules are expected to change.
 
+## License And Attribution
+
+ablesyn is licensed under Apache-2.0. Copyright 2026 Hengyaun Zhu.
+
+Public identity note: `synslius` and `Fearvox` are public research faces used by the same author. The names reflect different research orientations and public contexts, not separate authorship for this repository.
+
 ## Public-Surface Safety
 
 This is a public repo. Do not commit secrets, API keys, private paths, raw chat transcripts, screenshots, local machine identifiers, credentials, model API tokens, private runtime IDs, or auth payloads. Examples should use fake placeholders and public repository names only.
@@ -77,4 +83,3 @@ bun run ablesyn translate examples/capability-claim.able --to en
 bun run ablesyn translate examples/capability-claim.able --to zh
 bun run test
 ```
-
