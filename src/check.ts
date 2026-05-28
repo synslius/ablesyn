@@ -47,9 +47,15 @@ export function checkDocument(document: AbleDocument): CheckResult {
 
     const missingEvidence = claim.evidence.some((entry) => entry.kind === "missing");
     const observedEvidence = claim.evidence.some((entry) => entry.kind === "observed" || entry.kind === "external");
-    const selfReportObserved = claim.evidence.some((entry) => entry.kind === "observed" && entry.args[0] === "self_report");
-    const nonSelfReportEvidence = claim.evidence.some(
-      (entry) => entry.kind === "external" || (entry.kind === "observed" && entry.args[0] !== "self_report")
+
+    // Self-report is evidence, not authority (SPEC invariant #2): a self-report may be
+    // recorded as `observed`/`inferred` evidence or named as a belief source, but it cannot
+    // by itself authorize a PASS at ANY layer — every PASS is a truth upgrade (#4).
+    const selfReportPresent =
+      claim.evidence.some((entry) => (entry.kind === "observed" || entry.kind === "inferred") && entry.args.some(isSelfReportToken)) ||
+      claim.belief.sources.some(isSelfReportToken);
+    const authoritativeEvidence = claim.evidence.some(
+      (entry) => entry.kind === "external" || (entry.kind === "observed" && !entry.args.some(isSelfReportToken))
     );
 
     if (claim.verdict?.status === "PASS") {
@@ -62,8 +68,14 @@ export function checkDocument(document: AbleDocument): CheckResult {
       if (claim.probe.next.length > 0) {
         diagnostics.push(warning("PASS_WITH_OPEN_PROBE", "`PASS` should not carry open probes for the same claim.", claim.id));
       }
-      if (selfReportObserved && claim.layer === "SUBSTRATE" && !nonSelfReportEvidence) {
-        diagnostics.push(error("SELF_REPORT_IS_NOT_AUTHORITY", "Self-report alone cannot authorize a substrate PASS.", claim.id));
+      if (selfReportPresent && !authoritativeEvidence) {
+        diagnostics.push(
+          error(
+            "SELF_REPORT_IS_NOT_AUTHORITY",
+            "Self-report alone cannot authorize a PASS; a truth upgrade needs external or non-self-report observed evidence.",
+            claim.id
+          )
+        );
       }
     }
 
@@ -77,6 +89,10 @@ export function checkDocument(document: AbleDocument): CheckResult {
     ok: diagnostics.every((diagnostic) => diagnostic.severity !== "error"),
     diagnostics
   };
+}
+
+function isSelfReportToken(value: string): boolean {
+  return value === "self_report" || value.startsWith("self_report_");
 }
 
 function error(code: string, message: string, claim_id?: string): AbleDiagnostic {

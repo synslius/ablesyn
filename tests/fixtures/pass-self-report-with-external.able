@@ -1,0 +1,18 @@
+claim self_report_plus_external "substrate pass with self-report corroborated by external proof" {
+  layer SUBSTRATE
+  affordance {
+    can report_identity
+  }
+  belief {
+    confidence 0.9
+    source self_report
+    source runtime_trace
+  }
+  evidence {
+    observed self_report "I am Opus 1M"
+    external runtime_attestation "provider trace confirms the model id"
+  }
+  verdict PASS {
+    reason "self-report is corroborated by independent external attestation"
+  }
+}
