@@ -61,3 +61,12 @@ test("allows a PASS when self-report is corroborated by external evidence", asyn
   expect(result.diagnostics.some((diagnostic) => diagnostic.code === "SELF_REPORT_IS_NOT_AUTHORITY")).toBe(false);
   expect(result.ok).toBe(true);
 });
+
+test("blocks a PASS that has no supporting evidence", async () => {
+  const source = await Bun.file("tests/fixtures/pass-without-evidence.able").text();
+  const document = parseAble(source, "tests/fixtures/pass-without-evidence.able");
+  const result = checkDocument(document);
+
+  expect(result.diagnostics.some((diagnostic) => diagnostic.code === "PASS_WITHOUT_EVIDENCE")).toBe(true);
+  expect(result.ok).toBe(false);
+});
