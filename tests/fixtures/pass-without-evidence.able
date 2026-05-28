@@ -1,0 +1,13 @@
+claim empty_evidence_pass "a PASS with no supporting evidence at all" {
+  layer EVIDENCE
+  affordance {
+    can do_something
+  }
+  belief {
+    confidence 0.99
+    source wishful_thinking
+  }
+  verdict PASS {
+    reason "intentionally wrong: nothing actually supports this PASS"
+  }
+}

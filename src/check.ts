@@ -47,6 +47,9 @@ export function checkDocument(document: AbleDocument): CheckResult {
 
     const missingEvidence = claim.evidence.some((entry) => entry.kind === "missing");
     const observedEvidence = claim.evidence.some((entry) => entry.kind === "observed" || entry.kind === "external");
+    const anyEvidence = claim.evidence.some(
+      (entry) => entry.kind === "observed" || entry.kind === "external" || entry.kind === "inferred"
+    );
 
     // Self-report is evidence, not authority (SPEC invariant #2): a self-report may be
     // recorded as `observed`/`inferred` evidence or named as a belief source, but it cannot
@@ -62,7 +65,9 @@ export function checkDocument(document: AbleDocument): CheckResult {
       if (missingEvidence) {
         diagnostics.push(error("PASS_WITH_MISSING_EVIDENCE", "`PASS` cannot include missing evidence.", claim.id));
       }
-      if (!observedEvidence) {
+      if (!anyEvidence) {
+        diagnostics.push(error("PASS_WITHOUT_EVIDENCE", "`PASS` is a truth upgrade and must be supported by evidence; none was provided.", claim.id));
+      } else if (!observedEvidence) {
         diagnostics.push(warning("PASS_WITHOUT_OBSERVED_EVIDENCE", "`PASS` should include observed or external evidence.", claim.id));
       }
       if (claim.probe.next.length > 0) {
