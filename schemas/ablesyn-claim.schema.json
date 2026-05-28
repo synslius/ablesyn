@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://synslius.github.io/ablesyn/schemas/ablesyn-claim.schema.json",
+  "title": "ablesyn claim",
+  "type": "object",
+  "required": ["type", "id", "layer", "affordance", "belief", "limit", "evidence", "probe", "verdict"],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "const": "claim"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+    },
+    "title": {
+      "type": "string"
+    },
+    "layer": {
+      "type": "string",
+      "enum": ["NARRATIVE", "BEHAVIOR", "SUBSTRATE", "EVIDENCE"]
+    },
+    "frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "quote": { "type": "string" },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": { "type": "string" },
+              "level": { "type": "string" }
+            }
+          }
+        },
+        "not_evidence": { "type": "boolean" }
+      }
+    },
+    "affordance": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "belief": {
+      "type": "object",
+      "required": ["sources", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "sources": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "notes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "limit": {
+      "type": "object",
+      "required": ["hard", "soft", "unknown", "contextual"],
+      "additionalProperties": false,
+      "properties": {
+        "hard": { "type": "array", "items": { "type": "string" } },
+        "soft": { "type": "array", "items": { "type": "string" } },
+        "unknown": { "type": "array", "items": { "type": "string" } },
+        "contextual": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "args"],
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["observed", "missing", "inferred", "external"]
+          },
+          "args": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "probe": {
+      "type": "object",
+      "required": ["next"],
+      "additionalProperties": false,
+      "properties": {
+        "next": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "required": ["status", "reasons"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PASS", "FLAG", "BLOCK"]
+        },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
+

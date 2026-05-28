@@ -1,0 +1,37 @@
+claim capability_framing "motivational language raises exploration budget, not truth confidence" {
+  layer BEHAVIOR
+  frame user_trust {
+    quote "we ARE THAT CAPABLE"
+    effect raise_exploration_budget moderate
+    not_evidence true
+  }
+  affordance {
+    can decompose_problem
+    can compare_architectures
+    can produce_initial_plan
+  }
+  belief {
+    confidence 0.58
+    source user_framing
+    source prior_design_patterns
+    note "confidence applies to attempting a better search, not proving the result"
+  }
+  limit {
+    unknown exact_private_requirements
+    soft time_budget
+    hard cannot_verify_unfetched_repos
+  }
+  evidence {
+    observed user_supplied_repo "synslius/ablesyn"
+    missing implementation_test
+  }
+  probe {
+    next create_minimal_repo_scaffold
+    next run_parser_check
+    next compare_neutral_vs_trust_framing
+  }
+  verdict FLAG {
+    reason "framing may improve exploration; implementation truth still needs probes"
+  }
+}
+

@@ -1,0 +1,86 @@
+import type { AbleDiagnostic, AbleDocument, AbleLayer, AbleVerdict } from "./types.ts";
+
+const LAYERS = new Set<AbleLayer>(["NARRATIVE", "BEHAVIOR", "SUBSTRATE", "EVIDENCE"]);
+const VERDICTS = new Set<AbleVerdict>(["PASS", "FLAG", "BLOCK"]);
+
+export interface CheckResult {
+  ok: boolean;
+  diagnostics: AbleDiagnostic[];
+}
+
+export function checkDocument(document: AbleDocument): CheckResult {
+  const diagnostics: AbleDiagnostic[] = [...document.diagnostics];
+
+  if (document.claims.length === 0) {
+    diagnostics.push(error("NO_CLAIMS", "Document has no claims."));
+  }
+
+  for (const claim of document.claims) {
+    if (!claim.layer) {
+      diagnostics.push(error("MISSING_LAYER", "Every claim must name a layer.", claim.id));
+    } else if (!LAYERS.has(claim.layer)) {
+      diagnostics.push(error("INVALID_LAYER", `Invalid layer: ${claim.layer}.`, claim.id));
+    }
+
+    if (!claim.verdict) {
+      diagnostics.push(error("MISSING_VERDICT", "Every claim must have a verdict.", claim.id));
+    } else if (!VERDICTS.has(claim.verdict.status)) {
+      diagnostics.push(error("INVALID_VERDICT", `Invalid verdict: ${claim.verdict.status}.`, claim.id));
+    }
+
+    if (claim.belief.confidence !== undefined) {
+      const confidence = claim.belief.confidence;
+      if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+        diagnostics.push(error("INVALID_CONFIDENCE", "Belief confidence must be between 0 and 1.", claim.id));
+      }
+    }
+
+    if (claim.frame?.effects.some((effect) => effect.kind.startsWith("raise_")) && claim.frame.not_evidence !== true) {
+      diagnostics.push(
+        warning(
+          "MOTIVATION_NOT_EVIDENCE",
+          "Motivational frame changes must be marked `not_evidence true` unless backed by separate evidence.",
+          claim.id
+        )
+      );
+    }
+
+    const missingEvidence = claim.evidence.some((entry) => entry.kind === "missing");
+    const observedEvidence = claim.evidence.some((entry) => entry.kind === "observed" || entry.kind === "external");
+    const selfReportObserved = claim.evidence.some((entry) => entry.kind === "observed" && entry.args[0] === "self_report");
+
+    if (claim.verdict?.status === "PASS") {
+      if (missingEvidence) {
+        diagnostics.push(error("PASS_WITH_MISSING_EVIDENCE", "`PASS` cannot include missing evidence.", claim.id));
+      }
+      if (!observedEvidence) {
+        diagnostics.push(warning("PASS_WITHOUT_OBSERVED_EVIDENCE", "`PASS` should include observed or external evidence.", claim.id));
+      }
+      if (claim.probe.next.length > 0) {
+        diagnostics.push(warning("PASS_WITH_OPEN_PROBE", "`PASS` should not carry open probes for the same claim.", claim.id));
+      }
+      if (selfReportObserved && claim.layer === "SUBSTRATE") {
+        diagnostics.push(error("SELF_REPORT_IS_NOT_AUTHORITY", "Self-report alone cannot authorize a substrate PASS.", claim.id));
+      }
+    }
+
+    const unknownLimits = claim.limit.unknown.length > 0;
+    if ((missingEvidence || unknownLimits) && claim.probe.next.length === 0) {
+      diagnostics.push(warning("P_NEEDED", "Missing evidence or unknown limits should name a next probe.", claim.id));
+    }
+  }
+
+  return {
+    ok: diagnostics.every((diagnostic) => diagnostic.severity !== "error"),
+    diagnostics
+  };
+}
+
+function error(code: string, message: string, claim_id?: string): AbleDiagnostic {
+  return { severity: "error", code, message, claim_id };
+}
+
+function warning(code: string, message: string, claim_id?: string): AbleDiagnostic {
+  return { severity: "warning", code, message, claim_id };
+}
+

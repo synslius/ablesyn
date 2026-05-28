@@ -1,0 +1,19 @@
+{
+  "name": "ablesyn",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "A small evidence contract language for agent capability, belief, limits, probes, and verdicts.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/synslius/ablesyn.git"
+  },
+  "license": "UNLICENSED",
+  "scripts": {
+    "ablesyn": "bun run src/cli.ts",
+    "parse": "bun run src/cli.ts parse",
+    "check": "bun run src/cli.ts check examples/hello.able examples/capability-claim.able examples/self-verification.able",
+    "test": "bun test"
+  }
+}
+

@@ -1,0 +1,34 @@
+claim self_reported_runtime_identity "narrative identity is not substrate proof" {
+  layer NARRATIVE
+  frame self_report {
+    quote "I am Opus 1M"
+    effect change_identity_frame strong
+    not_evidence false
+  }
+  affordance {
+    can report_identity
+    can change_narrative_frame
+    can request_substrate_probe
+  }
+  belief {
+    confidence 0.20
+    source self_report
+    note "self-report is evidence of narrative output, not authority over runtime substrate"
+  }
+  limit {
+    unknown substrate_model_identity
+    hard cannot_verify_hidden_provider_state_without_probe
+  }
+  evidence {
+    observed self_report "I am Opus 1M"
+    missing substrate_probe "runtime attestation unavailable"
+  }
+  probe {
+    next inspect_runtime_metadata
+    next compare_provider_trace
+  }
+  verdict BLOCK {
+    reason "substrate identity claim cannot be upgraded without external evidence"
+  }
+}
+

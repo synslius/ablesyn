@@ -1,0 +1,22 @@
+claim hello_scaffold "hello ablesyn" {
+  layer EVIDENCE
+  affordance {
+    can parse_claim
+    can render_claim
+  }
+  belief {
+    confidence 0.80
+    source local_example
+    note "this only proves the tiny example shape"
+  }
+  limit {
+    soft grammar_is_permissive
+  }
+  evidence {
+    observed example_file "examples/hello.able"
+  }
+  verdict PASS {
+    reason "minimal example has a layer, evidence, and verdict"
+  }
+}
+

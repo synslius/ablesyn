@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://synslius.github.io/ablesyn/schemas/ablesyn-event.schema.json",
+  "title": "ablesyn event",
+  "type": "object",
+  "required": ["type", "claim_id", "layer", "timestamp", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["claim_observed", "evidence_added", "probe_requested", "probe_result", "verdict_set", "translation_rendered"]
+    },
+    "claim_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+    },
+    "layer": {
+      "type": "string",
+      "enum": ["NARRATIVE", "BEHAVIOR", "SUBSTRATE", "EVIDENCE"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["PASS", "FLAG", "BLOCK"]
+    }
+  }
+}
+
