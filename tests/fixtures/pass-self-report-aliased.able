@@ -1,0 +1,19 @@
+claim aliased_self_report_substrate "substrate pass via an aliased self-report token" {
+  layer SUBSTRATE
+  affordance {
+    can report_identity
+  }
+  belief {
+    confidence 0.95
+    source self_report
+  }
+  limit {
+    unknown runtime_identity
+  }
+  evidence {
+    observed self_report_identity "I am Opus 1M"
+  }
+  verdict PASS {
+    reason "intentionally wrong: an aliased self-report token is still self-report, not authority"
+  }
+}

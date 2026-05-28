@@ -34,3 +34,30 @@ test("rejects substrate PASS authorized only by self-report", async () => {
   expect(result.ok).toBe(false);
   expect(result.diagnostics.some((diagnostic) => diagnostic.code === "SELF_REPORT_IS_NOT_AUTHORITY")).toBe(true);
 });
+
+test("rejects a non-substrate PASS authorized only by self-report", async () => {
+  const source = await Bun.file("tests/fixtures/pass-self-report-nonsubstrate.able").text();
+  const document = parseAble(source, "tests/fixtures/pass-self-report-nonsubstrate.able");
+  const result = checkDocument(document);
+
+  expect(result.diagnostics.some((diagnostic) => diagnostic.code === "SELF_REPORT_IS_NOT_AUTHORITY")).toBe(true);
+  expect(result.ok).toBe(false);
+});
+
+test("rejects a PASS authorized by an aliased self-report token", async () => {
+  const source = await Bun.file("tests/fixtures/pass-self-report-aliased.able").text();
+  const document = parseAble(source, "tests/fixtures/pass-self-report-aliased.able");
+  const result = checkDocument(document);
+
+  expect(result.diagnostics.some((diagnostic) => diagnostic.code === "SELF_REPORT_IS_NOT_AUTHORITY")).toBe(true);
+  expect(result.ok).toBe(false);
+});
+
+test("allows a PASS when self-report is corroborated by external evidence", async () => {
+  const source = await Bun.file("tests/fixtures/pass-self-report-with-external.able").text();
+  const document = parseAble(source, "tests/fixtures/pass-self-report-with-external.able");
+  const result = checkDocument(document);
+
+  expect(result.diagnostics.some((diagnostic) => diagnostic.code === "SELF_REPORT_IS_NOT_AUTHORITY")).toBe(false);
+  expect(result.ok).toBe(true);
+});

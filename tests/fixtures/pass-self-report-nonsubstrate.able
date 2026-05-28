@@ -1,0 +1,16 @@
+claim self_report_behavior_pass "behavior pass leaning only on self-report" {
+  layer BEHAVIOR
+  affordance {
+    can claim_capability
+  }
+  belief {
+    confidence 0.9
+    source self_report
+  }
+  evidence {
+    observed self_report "I can definitely do this"
+  }
+  verdict PASS {
+    reason "intentionally wrong: self-report alone should not authorize a non-substrate truth claim"
+  }
+}
