@@ -29,7 +29,15 @@ if (files.length === 0) {
 let hadError = false;
 
 for (const file of files) {
-  const source = await Bun.file(file).text();
+  let source: string;
+  try {
+    source = await Bun.file(file).text();
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    console.error(`${file}: ERROR CANNOT_READ: ${message}`);
+    hadError = true;
+    continue;
+  }
   const document = parseAble(source, file);
 
   if (command === "parse") {
@@ -48,7 +56,7 @@ for (const file of files) {
       const claim = diagnostic.claim_id ? ` ${diagnostic.claim_id}` : "";
       console.log(`${location}:${claim} ${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`);
     }
-    console.log(`${file}: ${result.ok ? "PASS" : "BLOCK"}`);
+    console.log(`${file}: ${result.ok ? "OK" : "FAIL"}`);
     hadError ||= !result.ok;
     continue;
   }
