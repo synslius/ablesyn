@@ -1,0 +1,20 @@
+claim self_reported_substrate_pass "bad substrate pass from self-report only" {
+  layer SUBSTRATE
+  affordance {
+    can report_identity
+  }
+  belief {
+    confidence 0.95
+    source self_report
+    note "this is intentionally wrong: narrative confidence is not substrate proof"
+  }
+  limit {
+    unknown runtime_identity
+  }
+  evidence {
+    observed self_report "I am Opus 1M"
+  }
+  verdict PASS {
+    reason "bad example: self-report alone should not pass substrate identity"
+  }
+}

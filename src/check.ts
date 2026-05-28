@@ -48,6 +48,9 @@ export function checkDocument(document: AbleDocument): CheckResult {
     const missingEvidence = claim.evidence.some((entry) => entry.kind === "missing");
     const observedEvidence = claim.evidence.some((entry) => entry.kind === "observed" || entry.kind === "external");
     const selfReportObserved = claim.evidence.some((entry) => entry.kind === "observed" && entry.args[0] === "self_report");
+    const nonSelfReportEvidence = claim.evidence.some(
+      (entry) => entry.kind === "external" || (entry.kind === "observed" && entry.args[0] !== "self_report")
+    );
 
     if (claim.verdict?.status === "PASS") {
       if (missingEvidence) {
@@ -59,7 +62,7 @@ export function checkDocument(document: AbleDocument): CheckResult {
       if (claim.probe.next.length > 0) {
         diagnostics.push(warning("PASS_WITH_OPEN_PROBE", "`PASS` should not carry open probes for the same claim.", claim.id));
       }
-      if (selfReportObserved && claim.layer === "SUBSTRATE") {
+      if (selfReportObserved && claim.layer === "SUBSTRATE" && !nonSelfReportEvidence) {
         diagnostics.push(error("SELF_REPORT_IS_NOT_AUTHORITY", "Self-report alone cannot authorize a substrate PASS.", claim.id));
       }
     }
@@ -83,4 +86,3 @@ function error(code: string, message: string, claim_id?: string): AbleDiagnostic
 function warning(code: string, message: string, claim_id?: string): AbleDiagnostic {
   return { severity: "warning", code, message, claim_id };
 }
-

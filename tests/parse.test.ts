@@ -26,3 +26,11 @@ test("keeps self-reported runtime identity blocked without substrate proof", asy
   expect(checkDocument(document).ok).toBe(true);
 });
 
+test("rejects substrate PASS authorized only by self-report", async () => {
+  const source = await Bun.file("tests/fixtures/pass-with-self-report.able").text();
+  const document = parseAble(source, "tests/fixtures/pass-with-self-report.able");
+  const result = checkDocument(document);
+
+  expect(result.ok).toBe(false);
+  expect(result.diagnostics.some((diagnostic) => diagnostic.code === "SELF_REPORT_IS_NOT_AUTHORITY")).toBe(true);
+});
