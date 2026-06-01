@@ -1,0 +1,22 @@
+claim motivation_truth_upgrade "motivation must not raise truth confidence" {
+  layer BEHAVIOR
+  frame anticage {
+    quote "we are that capable"
+    effect raise_truth_confidence strong
+    not_evidence true
+  }
+  affordance {
+    can try_alternate_route
+  }
+  belief {
+    confidence 0.95
+    source motivational_frame
+  }
+  evidence {
+    observed attempt_started "the agent started trying"
+  }
+  verdict PASS {
+    reason "intentionally wrong: motivation cannot upgrade truth confidence"
+  }
+}
+

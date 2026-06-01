@@ -1,0 +1,9 @@
+claim inline_block_loss "inline blocks should not silently lose content" {
+  layer BEHAVIOR
+  belief { confidence 0.9 }
+  evidence {
+    observed local_input "fixture uses inline belief block"
+  }
+  verdict FLAG { reason "inline verdict reason would be lost in v0 parser" }
+}
+

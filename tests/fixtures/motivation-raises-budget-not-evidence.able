@@ -1,0 +1,21 @@
+claim budget_frame_needs_not_evidence "budget frame should be marked non-evidence" {
+  layer BEHAVIOR
+  frame anticage {
+    quote "build the wheel"
+    effect raise_exploration_budget moderate
+  }
+  affordance {
+    can try_alternate_route
+  }
+  belief {
+    confidence 0.6
+    source current_task_state
+  }
+  evidence {
+    observed alternate_route_identified "one blocked route and one side door found"
+  }
+  verdict FLAG {
+    reason "worth probing, but motivational frame is not evidence"
+  }
+}
+

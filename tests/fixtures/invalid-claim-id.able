@@ -1,0 +1,10 @@
+claim 123bad_id "invalid id shape" {
+  layer BEHAVIOR
+  evidence {
+    observed local_input "id starts with a digit"
+  }
+  verdict FLAG {
+    reason "id should fail checker pattern"
+  }
+}
+

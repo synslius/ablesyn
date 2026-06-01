@@ -18,7 +18,13 @@ if (command === "version") {
 
 const files = positionalFiles(args.slice(1));
 const json = args.includes("--json");
-const to = readOption(args, "--to") ?? "en";
+const rawTo = readOption(args, "--to");
+const to = rawTo ?? "en";
+
+if (command === "translate" && args.includes("--to") && (!rawTo || rawTo.startsWith("--") || (rawTo !== "en" && rawTo !== "zh"))) {
+  console.error("Invalid --to target. Expected `en` or `zh`.");
+  process.exit(1);
+}
 
 if (files.length === 0) {
   console.error("No .able files provided.");

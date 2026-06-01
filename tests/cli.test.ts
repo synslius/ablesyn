@@ -34,3 +34,19 @@ test("check does not label a BLOCK-verdict document as PASS", async () => {
   expect(out).toContain("examples/self-verification.able: OK");
   expect(out).not.toContain("PASS");
 });
+
+test("translate reports invalid --to target before swallowing file arguments", async () => {
+  const { code, out } = await runCli(["translate", "--to", "examples/hello.able"]);
+
+  expect(code).not.toBe(0);
+  expect(out).toContain("Invalid --to target");
+  expect(out).not.toContain("No .able files provided");
+});
+
+test("translate reports missing --to target directly", async () => {
+  const { code, out } = await runCli(["translate", "--to"]);
+
+  expect(code).not.toBe(0);
+  expect(out).toContain("Invalid --to target");
+  expect(out).not.toContain("No .able files provided");
+});
