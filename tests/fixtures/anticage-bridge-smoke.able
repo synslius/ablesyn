@@ -1,0 +1,37 @@
+claim anticage_bridge_smoke "anticage packet remains a bounded evidence contract" {
+  layer BEHAVIOR
+  frame anticage {
+    quote "a blocked route is not proof of impossibility"
+    effect raise_exploration_budget moderate
+    not_evidence true
+  }
+  affordance {
+    can identify_false_cage
+    can build_small_wheel
+    can preserve_real_limit
+  }
+  belief {
+    confidence 0.64
+    source public_method_packet
+    note "confidence applies to probing an alternate route, not proving the destination is reachable"
+  }
+  limit {
+    contextual public_surface_only
+    unknown alternate_door_result
+    unknown long_term_runtime_behavior
+  }
+  evidence {
+    observed packet_sections_present "wall, assumption, alternate doors, wheel, evidence, limits, probe, verdict"
+    observed bridge_rule_present "motivation raises exploration budget, not truth confidence"
+    missing alternate_door_result
+    missing hosted_ci_result
+  }
+  probe {
+    next translate_packet_to_claim
+    next run_hosted_ci
+  }
+  verdict FLAG {
+    reason "method packet is coherent, but the next probe has not returned external runtime evidence"
+  }
+}
+
