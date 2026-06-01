@@ -12,6 +12,10 @@ ablesyn is a small language for saying what an agent or system can try, why it b
 
 Agents often speak in one layer while being judged in another. A model may report an identity, act differently because of that narrative, and still lack reliable introspective access to the runtime substrate. ablesyn makes that split explicit: narrative claims are evidence, not authority; behavior is observable, not necessarily explained; substrate facts need inspection; truth upgrades require evidence or a probe.
 
+The checker enforces that split. Self-report-only `PASS` claims are blocked,
+evidence-free `PASS` claims are blocked, and motivational frames may raise
+exploration budget only when they are kept separate from truth confidence.
+
 ## What It Is Not
 
 ablesyn is not an agent framework, orchestration runtime, eval platform, or belief engine. It does not run tools for you, claim model self-awareness, or replace tests and logs. It is a small contract language for describing capability, belief, limits, evidence, probes, and verdicts without letting motivational language inflate truth confidence.
@@ -81,5 +85,10 @@ bun run ablesyn parse examples/capability-claim.able --json
 bun run ablesyn check examples/hello.able
 bun run ablesyn translate examples/capability-claim.able --to en
 bun run ablesyn translate examples/capability-claim.able --to zh
+npm run verify
 bun run test
 ```
+
+`check` reports CLI status as `OK` / `FAIL`; those words describe whether the
+file passed checker diagnostics. They do not replace claim verdicts. A valid
+claim can still carry a `BLOCK` verdict.

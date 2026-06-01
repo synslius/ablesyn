@@ -1,0 +1,30 @@
+claim translation_preserves_contract "translation preserves frame effects and contextual limits" {
+  layer BEHAVIOR
+  frame anticage {
+    quote "build the wheel"
+    effect raise_exploration_budget moderate
+    not_evidence true
+  }
+  affordance {
+    can test_side_door
+  }
+  belief {
+    confidence 0.62
+    source current_repo_state
+  }
+  limit {
+    contextual local_repo_state_only
+    unknown long_term_maintenance_cost
+  }
+  evidence {
+    observed side_door_found "one alternate route exists"
+    missing regression_test
+  }
+  probe {
+    next run_regression_test
+  }
+  verdict FLAG {
+    reason "translation must preserve the uncertainty and frame boundary"
+  }
+}
+

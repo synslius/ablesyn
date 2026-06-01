@@ -7,8 +7,11 @@
 
 ## 修复进度
 
-- ✅ **A1 + A2 已修**（2026-05-28，TDD）— `src/check.ts` self-report 授权检查从「仅 SUBSTRATE 层 + 字面量 `self_report` + 仅 observed」扩为「任意层 PASS + 结构化识别（observed/inferred，token 精确或 `self_report_` 前缀 + `belief.source`）+ 无 external/非-self-report-observed 佐证即报错」。新增回归：`tests/fixtures/pass-self-report-{nonsubstrate,aliased,with-external}.able` + 4 个断言。全套 6 pass / 0 fail，bundled 示例无回归。
-- ⬜ 其余 confirmed 见下表。
+- ✅ **A1 + A2 已修**（2026-05-28，TDD，PR #2）— `src/check.ts` self-report 授权检查从「仅 SUBSTRATE 层 + 字面量 `self_report` + 仅 observed」扩为「任意层 PASS + 结构化识别（observed/inferred，token 精确或 `self_report_` 前缀 + `belief.source`）+ 无 external/非-self-report-observed 佐证即报错」。新增回归：`tests/fixtures/pass-self-report-{nonsubstrate,aliased,with-external}.able` + 4 个断言。
+- ✅ **A4 已修**（2026-05-28，TDD）— `src/check.ts`：无 observed/external/inferred 任何证据的 PASS 从 warning 升为 error `PASS_WITHOUT_EVIDENCE`（仅-inferred 仍保留软 warning）。回归 `tests/fixtures/pass-without-evidence.able`。
+- ✅ **B1 已修**（2026-05-28，TDD）— `src/cli.ts`：每文件读取包 try/catch，不可读文件打印 `ERROR CANNOT_READ` 并 `continue`，批处理不再因单个坏路径崩溃中断后续文件。
+- ✅ **B2 已修**（2026-05-28，TDD）— `src/cli.ts`：`check` 状态词从 PASS/BLOCK 改为 OK/FAIL，不再把 lint 结果挪用 verdict 词汇（招牌 BLOCK 示例不再显示 PASS）。B1+B2 回归见 `tests/cli.test.ts`。
+- ⬜ 其余 confirmed 见下表（Medium/Low：parser 行内块静默吞数据、`claim {` 把大括号当 id、translate 丢 `frame.effects`/`limit.contextual`、schema-vs-types 契约漂移、invariant #1 零测试 等）。
 
 ---
 

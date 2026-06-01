@@ -18,7 +18,13 @@ if (command === "version") {
 
 const files = positionalFiles(args.slice(1));
 const json = args.includes("--json");
-const to = readOption(args, "--to") ?? "en";
+const rawTo = readOption(args, "--to");
+const to = rawTo ?? "en";
+
+if (command === "translate" && args.includes("--to") && (!rawTo || rawTo.startsWith("--") || (rawTo !== "en" && rawTo !== "zh"))) {
+  console.error("Invalid --to target. Expected `en` or `zh`.");
+  process.exit(1);
+}
 
 if (files.length === 0) {
   console.error("No .able files provided.");
@@ -29,7 +35,15 @@ if (files.length === 0) {
 let hadError = false;
 
 for (const file of files) {
-  const source = await Bun.file(file).text();
+  let source: string;
+  try {
+    source = await Bun.file(file).text();
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    console.error(`${file}: ERROR CANNOT_READ: ${message}`);
+    hadError = true;
+    continue;
+  }
   const document = parseAble(source, file);
 
   if (command === "parse") {
@@ -48,7 +62,7 @@ for (const file of files) {
       const claim = diagnostic.claim_id ? ` ${diagnostic.claim_id}` : "";
       console.log(`${location}:${claim} ${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`);
     }
-    console.log(`${file}: ${result.ok ? "PASS" : "BLOCK"}`);
+    console.log(`${file}: ${result.ok ? "OK" : "FAIL"}`);
     hadError ||= !result.ok;
     continue;
   }
