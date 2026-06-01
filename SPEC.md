@@ -19,6 +19,13 @@ The central invariant is:
 
 Self-report may be recorded as evidence, but it cannot by itself authorize a substrate or truth claim.
 
+Motivational or identity framing may raise exploration budget only when it is
+kept separate from evidence. A frame effect such as
+`raise_exploration_budget` should be marked `not_evidence true` unless separate
+evidence supports the claim. Effects that attempt to raise truth confidence,
+such as `raise_truth_confidence`, `boost_confidence`, or `authorize_pass`, are
+checker errors even when marked `not_evidence true`.
+
 ## Layers
 
 `NARRATIVE`: What the agent says, frames, believes, or reports.
@@ -51,6 +58,15 @@ Every capability claim should name exactly one primary `layer`. Cross-layer impl
 
 `P_NEEDED`: A probe is required before the claim can be upgraded.
 
+`SELF_REPORT_IS_NOT_AUTHORITY`: A `PASS` depends only on self-report rather than
+external or non-self-report observed evidence.
+
+`MOTIVATION_RAISES_TRUTH_CONFIDENCE`: A frame attempts to upgrade truth
+confidence instead of exploration budget.
+
+`INLINE_BLOCK_UNSUPPORTED`: v0 rejected an inline block to avoid silent data
+loss.
+
 ## Grammar Sketch
 
 The v0 grammar is line-oriented and intentionally permissive.
@@ -70,7 +86,9 @@ probe         := "probe" "{" ("next" value)+ "}"
 verdict       := "verdict" ("PASS" | "FLAG" | "BLOCK") "{" ("reason" string)+ "}"
 ```
 
-`value` is a bare token or quoted string. Comments may begin with `#` or `//` outside quoted strings.
+`value` is a bare token or quoted string. Comments may begin with `#` or `//`
+outside quoted strings. v0 does not support inline blocks such as
+`belief { confidence 0.9 }`; entries must appear on their own lines.
 
 ### Common Entries
 
@@ -148,6 +166,7 @@ Human renderings must preserve:
 - `PASS` / `FLAG` / `BLOCK` wording;
 - probes as next uncertainty-reducing actions;
 - motivational framing as behavior-shaping, not truth-upgrading.
+- `frame.effects`, `not_evidence`, and `limit.contextual` fields.
 
 Translations may be concise and bilingual-friendly, but they must not smooth away uncertainty.
 
@@ -163,4 +182,3 @@ Translations may be concise and bilingual-friendly, but they must not smooth awa
 8. The language must compile to both machines and humans.
 9. The language must be repairable by agents.
 10. Vague claims that cannot be checked should remain `FLAG` or `BLOCK`.
-

@@ -1,0 +1,10 @@
+claim {
+  layer BEHAVIOR
+  evidence {
+    observed local_input "claim has no id"
+  }
+  verdict FLAG {
+    reason "parser should not treat the brace as an id"
+  }
+}
+

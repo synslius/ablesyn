@@ -54,17 +54,30 @@ export function parseAble(source: string, sourceName?: string): AbleDocument {
         continue;
       }
       const id = tokens[1];
-      if (!id) {
+      if (!id || id === "{") {
         diagnostics.push(diag("error", "CLAIM_ID", "Claim is missing an id.", lineNumber));
         continue;
       }
-      const title = tokens.length > 3 ? tokens[2] : undefined;
+      const title = tokens.length > 3 ? tokens.slice(2, -1).join(" ") : undefined;
       currentClaim = makeClaim(id, title === "{" ? undefined : title);
       continue;
     }
 
     if (!currentClaim) {
       diagnostics.push(diag("error", "OUTSIDE_CLAIM", `Line starts outside a claim: ${tokens[0]}.`, lineNumber));
+      continue;
+    }
+
+    if ((tokens.includes("{") || tokens.includes("}")) && tokens.at(-1) !== "{") {
+      diagnostics.push(
+        diag(
+          "error",
+          "INLINE_BLOCK_UNSUPPORTED",
+          "Inline blocks are not supported in v0; put block entries on separate lines.",
+          lineNumber,
+          currentClaim.id
+        )
+      );
       continue;
     }
 
@@ -267,7 +280,7 @@ function stripComment(line: string): string {
 }
 
 function tokenizeLine(line: string): string[] {
-  return line.match(/"([^"\\]|\\.)*"|\{|\}|\S+/g) ?? [];
+  return line.match(/"([^"\\]|\\.)*"|\{|\}|[^\s{}]+/g) ?? [];
 }
 
 function unquote(token: string): string {
@@ -290,4 +303,3 @@ function diag(
 ): AbleDiagnostic {
   return { severity, code, message, line, claim_id };
 }
-

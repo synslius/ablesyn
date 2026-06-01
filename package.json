@@ -14,6 +14,7 @@
     "ablesyn": "bun run src/cli.ts",
     "parse": "bun run src/cli.ts parse",
     "check": "bun run src/cli.ts check examples/hello.able examples/capability-claim.able examples/self-verification.able",
+    "verify": "node scripts/verify.mjs",
     "test": "bun test"
   }
 }

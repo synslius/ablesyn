@@ -19,8 +19,8 @@ function renderEn(claim: AbleClaim): string {
     `Layer: ${claim.layer ?? "UNKNOWN"}`,
     `Affordance: ${joinOrNone(claim.affordance)}`,
     `Belief: ${formatConfidence(claim.belief.confidence)}; sources ${joinOrNone(claim.belief.sources)}`,
-    `Limits: hard ${joinOrNone(claim.limit.hard)}; soft ${joinOrNone(claim.limit.soft)}; unknown ${joinOrNone(claim.limit.unknown)}`,
-    `Evidence: ${joinOrNone(claim.evidence.map((entry) => `${entry.kind}:${entry.args.join("/")}`))}`,
+    `Limits: hard ${joinOrNone(claim.limit.hard)}; soft ${joinOrNone(claim.limit.soft)}; unknown ${joinOrNone(claim.limit.unknown)}; contextual ${joinOrNone(claim.limit.contextual)}`,
+    `Evidence: ${formatEvidence(claim)}`,
     `Probe: ${joinOrNone(claim.probe.next)}`,
     `Verdict: ${claim.verdict?.status ?? "UNKNOWN"}${formatReasons(claim.verdict?.reasons)}`
   ];
@@ -29,7 +29,7 @@ function renderEn(claim: AbleClaim): string {
     lines.splice(
       2,
       0,
-      `Frame: ${claim.frame.id ?? "unnamed"}; quote ${claim.frame.quote ?? "none"}; not evidence ${String(claim.frame.not_evidence ?? false)}`
+      `Frame: ${claim.frame.id ?? "unnamed"}; quote ${claim.frame.quote ?? "none"}; effects ${formatEffects(claim)}; not_evidence ${String(claim.frame.not_evidence ?? false)}`
     );
   }
 
@@ -42,8 +42,8 @@ function renderZh(claim: AbleClaim): string {
     `层: ${claim.layer ?? "UNKNOWN"}`,
     `能力: ${joinOrNone(claim.affordance)}`,
     `信念: ${formatConfidence(claim.belief.confidence)}; 来源 ${joinOrNone(claim.belief.sources)}`,
-    `边界: hard ${joinOrNone(claim.limit.hard)}; soft ${joinOrNone(claim.limit.soft)}; unknown ${joinOrNone(claim.limit.unknown)}`,
-    `证据: ${joinOrNone(claim.evidence.map((entry) => `${entry.kind}:${entry.args.join("/")}`))}`,
+    `边界: hard ${joinOrNone(claim.limit.hard)}; soft ${joinOrNone(claim.limit.soft)}; unknown ${joinOrNone(claim.limit.unknown)}; contextual ${joinOrNone(claim.limit.contextual)}`,
+    `证据: ${formatEvidence(claim)}`,
     `探针: ${joinOrNone(claim.probe.next)}`,
     `结论: ${claim.verdict?.status ?? "UNKNOWN"}${formatReasons(claim.verdict?.reasons)}`
   ];
@@ -52,7 +52,7 @@ function renderZh(claim: AbleClaim): string {
     lines.splice(
       2,
       0,
-      `框架: ${claim.frame.id ?? "unnamed"}; 原话 ${claim.frame.quote ?? "none"}; 不作证据 ${String(claim.frame.not_evidence ?? false)}`
+      `框架: ${claim.frame.id ?? "unnamed"}; 原话 ${claim.frame.quote ?? "none"}; effects ${formatEffects(claim)}; not_evidence ${String(claim.frame.not_evidence ?? false)}`
     );
   }
 
@@ -74,3 +74,24 @@ function joinOrNone(values: string[]): string {
   return values.length === 0 ? "none" : values.join(", ");
 }
 
+function formatEffects(claim: AbleClaim): string {
+  const effects = claim.frame?.effects ?? [];
+  if (effects.length === 0) {
+    return "none";
+  }
+  return effects.map((effect) => (effect.level ? `${effect.kind}:${effect.level}` : effect.kind)).join(", ");
+}
+
+function formatEvidence(claim: AbleClaim): string {
+  if (claim.evidence.length === 0) {
+    return "none";
+  }
+  return ["observed", "missing", "inferred", "external"]
+    .map((kind) => {
+      const entries = claim.evidence
+        .filter((entry) => entry.kind === kind)
+        .map((entry) => entry.args.join("/"));
+      return `${kind} ${joinOrNone(entries)}`;
+    })
+    .join("; ");
+}

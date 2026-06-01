@@ -70,3 +70,46 @@ test("blocks a PASS that has no supporting evidence", async () => {
   expect(result.diagnostics.some((diagnostic) => diagnostic.code === "PASS_WITHOUT_EVIDENCE")).toBe(true);
   expect(result.ok).toBe(false);
 });
+
+test("warns when budget-changing motivation is not marked non-evidence", async () => {
+  const source = await Bun.file("tests/fixtures/motivation-raises-budget-not-evidence.able").text();
+  const document = parseAble(source, "tests/fixtures/motivation-raises-budget-not-evidence.able");
+  const result = checkDocument(document);
+
+  expect(result.diagnostics.some((diagnostic) => diagnostic.code === "MOTIVATION_NOT_EVIDENCE")).toBe(true);
+  expect(result.ok).toBe(true);
+});
+
+test("blocks motivational truth-confidence upgrades", async () => {
+  const source = await Bun.file("tests/fixtures/motivation-raises-truth-confidence.able").text();
+  const document = parseAble(source, "tests/fixtures/motivation-raises-truth-confidence.able");
+  const result = checkDocument(document);
+
+  expect(result.diagnostics.some((diagnostic) => diagnostic.code === "MOTIVATION_RAISES_TRUTH_CONFIDENCE")).toBe(true);
+  expect(result.ok).toBe(false);
+});
+
+test("rejects inline blocks before they can lose content silently", async () => {
+  const source = await Bun.file("tests/fixtures/inline-block-unsupported.able").text();
+  const document = parseAble(source, "tests/fixtures/inline-block-unsupported.able");
+
+  expect(document.diagnostics.some((diagnostic) => diagnostic.code === "INLINE_BLOCK_UNSUPPORTED")).toBe(true);
+  expect(checkDocument(document).ok).toBe(false);
+});
+
+test("does not treat an opening brace as a claim id", async () => {
+  const source = await Bun.file("tests/fixtures/missing-claim-id.able").text();
+  const document = parseAble(source, "tests/fixtures/missing-claim-id.able");
+
+  expect(document.claims).toHaveLength(0);
+  expect(document.diagnostics.some((diagnostic) => diagnostic.code === "CLAIM_ID")).toBe(true);
+});
+
+test("rejects invalid claim id shape", async () => {
+  const source = await Bun.file("tests/fixtures/invalid-claim-id.able").text();
+  const document = parseAble(source, "tests/fixtures/invalid-claim-id.able");
+  const result = checkDocument(document);
+
+  expect(result.diagnostics.some((diagnostic) => diagnostic.code === "INVALID_CLAIM_ID")).toBe(true);
+  expect(result.ok).toBe(false);
+});
