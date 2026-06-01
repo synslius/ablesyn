@@ -17,6 +17,13 @@ mustPass("examples", [
   "examples/capability-claim.able",
   "examples/self-verification.able"
 ]);
+mustPass("anticage-bridge-smoke", [
+  "bun",
+  "run",
+  "src/cli.ts",
+  "check",
+  "tests/fixtures/anticage-bridge-smoke.able"
+]);
 
 mustFail("pass-without-evidence", ["bun", "run", "src/cli.ts", "check", "tests/fixtures/pass-without-evidence.able"], [
   "PASS_WITHOUT_EVIDENCE"
@@ -37,6 +44,13 @@ mustFail("inline-block", ["bun", "run", "src/cli.ts", "check", "tests/fixtures/i
 
 mustTranslate("translate-en", "en");
 mustTranslate("translate-zh", "zh");
+mustTranslateFixture("anticage-bridge-translate-en", "tests/fixtures/anticage-bridge-smoke.able", "en", [
+  "effects raise_exploration_budget:moderate",
+  "not_evidence true",
+  "contextual public_surface_only",
+  "hosted_ci_result",
+  "Verdict: FLAG"
+]);
 scanPublicSurface();
 
 if (failures.length > 0) {
@@ -94,6 +108,19 @@ function mustTranslate(name, target) {
     "contextual local_repo_state_only",
     "missing regression_test"
   ]) {
+    if (!result.output.includes(snippet)) {
+      failures.push(`${name}: missing ${snippet}`);
+    }
+  }
+}
+
+function mustTranslateFixture(name, fixture, target, requiredSnippets) {
+  const result = run(["bun", "run", "src/cli.ts", "translate", fixture, "--to", target]);
+  if (result.status !== 0) {
+    failures.push(`${name}: translate exited ${result.status}`);
+    return;
+  }
+  for (const snippet of requiredSnippets) {
     if (!result.output.includes(snippet)) {
       failures.push(`${name}: missing ${snippet}`);
     }
