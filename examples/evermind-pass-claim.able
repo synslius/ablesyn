@@ -1,0 +1,24 @@
+claim evermind_pass_c04 "EverCore achieves LoCoMo 93.05% and LongMemEval 83.00% on EverMemBench" {
+  layer EVIDENCE
+  affordance {
+    can achieve_high_accuracy_on_locomo_benchmark
+    can achieve_high_accuracy_on_longmemeval_benchmark
+  }
+  belief {
+    confidence 0.9
+    source EverMind-AI/EverOS README line 481
+    note "byte-verified by @Reviewer: exact string match in public README + arXiv 2601.02163 paper cited + real repro CLI confirmed at lines 564-570"
+  }
+  limit {
+    soft scores_reported_by_EverMind_not_yet_independently_reproduced_by_third_party
+  }
+  evidence {
+    observed EverMemBench_benchmark_directory_exists_in_EverOS_repo
+    observed specific_scores_93_05_and_83_00_byte_verified_in_README_line_481
+    observed arXiv_paper_2601_02163_cited_in_README_line_483
+    observed reproduction_CLI_exists_lines_564_570 "uv run python -m evaluation.cli --dataset locomo --system everos"
+  }
+  verdict PASS {
+    reason "strongest_evidence_class_in_EverMind_public_repos: specific numeric scores byte-verified in README + arXiv paper citation + real reproducible CLI command — this is the reference example of an evidence-bound claim"
+  }
+}

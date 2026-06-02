@@ -20,8 +20,8 @@ sleep 2
 echo "━━━━ Scene 1: EverMind 'self-evolution' claim ━━━━"
 echo ""
 sleep 1
-echo '$ node src/cli.ts translate /tmp/evermind-scan/evermind-technical-claims.able --to en | grep "tech_3" -A2'
-node "$REPO/src/cli.ts" translate /tmp/evermind-scan/evermind-technical-claims.able --to en 2>/dev/null \
+echo '$ node src/cli.ts translate "$REPO/examples/evermind-technical-claims.able" --to en | grep "tech_3" -A2'
+node "$REPO/src/cli.ts" translate "$REPO/examples/evermind-technical-claims.able" --to en 2>/dev/null \
   | grep "tech_3\|SUBSTRATE_CLAIM\|Verdict: FLAG" | head -5 \
   || echo "  tech_3: Verdict: FLAG - SUBSTRATE_CLAIM_VIA_BEHAVIOR: improvement delta ≠ self-evolution"
 sleep 2
@@ -30,14 +30,14 @@ echo ""
 echo "━━━━ Same ruler, evidence-bound claim ━━━━"
 echo ""
 sleep 1
-echo '$ node src/cli.ts translate /tmp/evermind-scan/evermind-pass-claim.able --to en | grep "Verdict"'
-node "$REPO/src/cli.ts" translate /tmp/evermind-scan/evermind-pass-claim.able --to en 2>/dev/null \
+echo '$ node src/cli.ts translate "$REPO/examples/evermind-pass-claim.able" --to en | grep "Verdict"'
+node "$REPO/src/cli.ts" translate "$REPO/examples/evermind-pass-claim.able" --to en 2>/dev/null \
   | grep "Verdict" | head -3 \
   || echo "  evermind_pass_c04: Verdict: PASS - EverMemBench benchmark with arXiv citation"
 sleep 1
 echo ""
-echo "$ node src/cli.ts check /tmp/evermind-scan/evermind-pass-claim.able"
-node "$REPO/src/cli.ts" check /tmp/evermind-scan/evermind-pass-claim.able
+echo "$ node src/cli.ts check "$REPO/examples/evermind-pass-claim.able""
+node "$REPO/src/cli.ts" check "$REPO/examples/evermind-pass-claim.able"
 sleep 1
 echo ""
 echo "  # Reproducible:"

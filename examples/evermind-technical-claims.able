@@ -1,0 +1,112 @@
+claim evermind_tech_1 "EverOS makes agents more personal while saving tokens" {
+  layer BEHAVIOR
+  affordance {
+    can improve_agent_personalization
+    can reduce_token_usage
+  }
+  belief {
+    confidence 0.5
+    source EvoAgentBench leaderboard-data.ts EverOS method description
+    note "saving tokens is a measurable BEHAVIOR claim; more personal is unmeasured"
+  }
+  limit {
+    unknown quantified_token_savings_number
+    unknown definition_of_more_personal_in_measurable_terms
+  }
+  evidence {
+    missing token_usage_comparison_with_and_without_EverOS
+    missing definition_of_personalization_metric
+  }
+  probe {
+    next check_EvoAgentBench_efficiency_column_for_cost_change_with_EverOS
+  }
+  verdict FLAG {
+    reason "partial_evidence: token saving is a BEHAVIOR claim (efficiency column exists in leaderboard), but no inline quantified savings number; personalization claim lacks measurable definition"
+  }
+}
+
+claim evermind_tech_2 "EverOS extracts and stores long-term memory from session trajectories then injects reusable skills as domain-specific strategies" {
+  layer BEHAVIOR
+  affordance {
+    can extract_memory_from_sessions
+    can store_long_term_memory
+    can inject_skills_into_agents
+  }
+  belief {
+    confidence 0.7
+    source EvoAgentBench leaderboard-data.ts EverOS method description + EverOS repo structure
+    note "extraction and injection are observable behaviors; long-term persistence is verifiable via EverOS architecture"
+  }
+  limit {
+    soft what_counts_as_reusable_vs_session_specific_skill
+  }
+  evidence {
+    observed EverOS_use_cases_directory_contains_examples
+    observed EvoAgentBench_leaderboard_shows_EverOS_withSkills_vs_without_scores
+    missing reproduced_extraction_pipeline_by_third_party
+  }
+  probe {
+    next run_EvoAgentBench_with_EverOS_to_verify_skill_injection_behavior
+  }
+  verdict FLAG {
+    reason "strong_behavior_evidence_but_no_third_party_reproduction: core mechanism (extract/inject) is architecturally plausible and leaderboard exists; independence verification missing"
+  }
+}
+
+claim evermind_tech_3 "EvoAgentBench measures self-evolution across diverse task domains" {
+  layer BEHAVIOR
+  affordance {
+    can measure_agent_self_evolution
+    can benchmark_across_multiple_domains
+  }
+  belief {
+    confidence 0.6
+    source EvoAgentBench README + leaderboard-data.ts domain definitions
+    note "5 domains with cluster/train/test counts are defined; self-evolution definition is benchmark-specific"
+  }
+  limit {
+    unknown whether_improvement_delta_equals_self_evolution_or_skill_injection
+    soft benchmark_may_measure_skill_learning_not_self_evolution_in_cognitive_sense
+  }
+  evidence {
+    observed leaderboard_has_withSkills_vs_without_comparison_columns
+    observed 5_domains_defined_with_train_and_test_splits
+    missing formal_definition_of_self_evolution_in_benchmark_spec
+    missing distinction_between_skill_injection_and_genuine_self_evolution
+  }
+  probe {
+    next read_EvoAgentBench_paper_for_self_evolution_definition
+  }
+  verdict FLAG {
+    reason "SUBSTRATE_CLAIM_VIA_BEHAVIOR: improvement delta is observed (BEHAVIOR); whether that constitutes self-evolution is a SUBSTRATE/NARRATIVE claim—benchmark scores show skill injection impact, not cognitive self-modification"
+  }
+}
+
+claim evermind_tech_4 "MSA achieves less than 9 percent degradation scaling from 16K to 100M tokens" {
+  layer EVIDENCE
+  affordance {
+    can scale_to_100M_tokens
+    can maintain_accuracy_at_extreme_context
+  }
+  belief {
+    confidence 0.8
+    source MSA arXiv 2603.23516 + EverMind-AI/MSA README
+    note "9 percent degradation claim is in published arXiv paper with reproduction path"
+  }
+  limit {
+    soft measured_on_specific_benchmarks_MS_MARCO_and_NIAH_not_all_tasks
+    unknown generalizability_beyond_reported_benchmarks
+  }
+  evidence {
+    observed arXiv_paper_2603_23516_published
+    observed HuggingFace_model_MSA_4B_available
+    observed Figure_1_scaling_curve_in_paper
+    missing independent_third_party_reproduction
+  }
+  probe {
+    next verify_via_HuggingFace_model_card_and_arXiv_reviewers_comments
+  }
+  verdict FLAG {
+    reason "strongest_claim_in_set: paper exists, model is public, but independent reproduction not found; EVIDENCE layer is strongest of all EverMind claims audited"
+  }
+}
