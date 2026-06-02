@@ -2,8 +2,9 @@
 import { checkDocument } from "./check.ts";
 import { parseAble } from "./parse.ts";
 import { translateDocument, type TranslationTarget } from "./translate.ts";
+import { readFile } from "node:fs/promises";
 
-const args = Bun.argv.slice(2);
+const args = process.argv.slice(2);
 const command = args[0];
 
 if (!command || command === "--help" || command === "-h") {
@@ -37,7 +38,7 @@ let hadError = false;
 for (const file of files) {
   let source: string;
   try {
-    source = await Bun.file(file).text();
+    source = await readFile(file, "utf8");
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);
     console.error(`${file}: ERROR CANNOT_READ: ${message}`);
