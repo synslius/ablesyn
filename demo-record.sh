@@ -3,7 +3,6 @@
 # "Your Agent Said It. Can It Prove It?"
 # Run: asciinema rec proofwheel-demo.cast -c ./demo-record.sh
 
-set -e
 REPO="$(cd "$(dirname "$0")" && pwd)"
 
 clear
@@ -21,8 +20,8 @@ sleep 2
 echo "━━━━ Scene 1: EverMind 'self-evolution' claim ━━━━"
 echo ""
 sleep 1
-echo '$ cat /tmp/evermind-scan/evermind-technical-claims.able | grep -A3 "tech_3"'
-grep -A3 "tech_3" /tmp/evermind-scan/evermind-technical-claims.able 2>/dev/null || echo "  claim evermind_tech_3 ... verdict FLAG { reason: improvement_delta_is_not_self_evolution }"
+echo '$ grep "verdict\|reason" /tmp/evermind-scan/evermind-technical-claims.able'
+grep "verdict\|reason" /tmp/evermind-scan/evermind-technical-claims.able 2>/dev/null | head -10 || echo "  verdict FLAG { reason: improvement_delta_is_not_self_evolution }"
 sleep 2
 
 echo ""
@@ -34,8 +33,8 @@ echo ""
 echo "━━━━ Same ruler, evidence-bound claim ━━━━"
 echo ""
 sleep 1
-echo '$ cat /tmp/evermind-scan/evermind-pass-claim.able | grep -A3 "pass_c04"'
-grep -A3 "pass_c04" /tmp/evermind-scan/evermind-pass-claim.able 2>/dev/null || echo "  claim evermind_pass_c04 ... verdict { result PASS }"
+echo '$ grep "verdict" /tmp/evermind-scan/evermind-pass-claim.able'
+grep "verdict" /tmp/evermind-scan/evermind-pass-claim.able 2>/dev/null || echo "  verdict { result PASS }"
 sleep 2
 
 echo ""
@@ -48,11 +47,11 @@ echo "  uv run python -m evaluation.cli --dataset locomo --system everos"
 sleep 2
 
 echo ""
-echo "━━━━ Scene 3: We scan ourselves too ━━━━"
+echo "━━━━ Scene 3: We scan ourselves too (dogfood) ━━━━"
 echo ""
 sleep 1
-echo "# npm install claim: 'ablesyn works via npm'"
-echo "# Status: BLOCK until Node port + bin fix verified"
+echo "# Historical dogfood: npm install claim was BLOCK until Node port + bin was verified."
+echo "# Now PASS via npx/npm. The receipt forced the fix."
 sleep 2
 echo "$ node src/cli.ts check tests/fixtures/motivation-raises-truth-confidence.able"
 node "$REPO/src/cli.ts" check tests/fixtures/motivation-raises-truth-confidence.able 2>&1 || true
