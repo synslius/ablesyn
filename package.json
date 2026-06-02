@@ -10,11 +10,23 @@
     "url": "https://github.com/synslius/ablesyn.git"
   },
   "license": "Apache-2.0",
+  "bin": {
+    "ablesyn": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "ablesyn": "bun run src/cli.ts",
     "parse": "bun run src/cli.ts parse",
     "check": "bun run src/cli.ts check examples/hello.able examples/capability-claim.able examples/self-verification.able",
     "verify": "node scripts/verify.mjs",
-    "test": "bun test"
+    "test": "bun test",
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0"
   }
 }
