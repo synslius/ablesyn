@@ -80,11 +80,26 @@ This is a public repo. Do not commit secrets, API keys, private paths, raw chat 
 
 ## Local Commands
 
+**After `git clone` (no install required, Node 24+ or bun):**
+
+```sh
+# Node 24+ (strip-types, zero install):
+node src/cli.ts check examples/hello.able
+
+# Or with bun:
+bun run src/cli.ts check examples/hello.able
+
+# Build dist/ for npm bin path (needed for npx ablesyn):
+npm install && npm run build
+node dist/cli.js check examples/hello.able
+```
+
+**Dev commands:**
+
 ```sh
 bun run ablesyn parse examples/capability-claim.able --json
 bun run ablesyn check examples/hello.able
 bun run ablesyn translate examples/capability-claim.able --to en
-bun run ablesyn translate examples/capability-claim.able --to zh
 npm run verify
 bun run test
 ```
