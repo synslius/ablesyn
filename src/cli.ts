@@ -1,4 +1,3 @@
-#!/usr/bin/env bun
 import { checkDocument } from "./check.ts";
 import { parseAble } from "./parse.ts";
 import { translateDocument, type TranslationTarget } from "./translate.ts";
