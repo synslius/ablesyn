@@ -1,0 +1,16 @@
+claim ablesyn_npm_runnable_pre_fix "ablesyn works via npm (claimed before Node port + bin fix)" {
+  layer BEHAVIOR
+  belief {
+    confidence 0.9
+    source self_report
+  }
+  evidence {
+    missing node_compatible_bin "cli shebang was bun; dist not built; fresh install failed"
+  }
+  probe {
+    next port_cli_to_node_and_fix_shebang_then_reverify
+  }
+  verdict PASS {
+    reason "we said it works"
+  }
+}

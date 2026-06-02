@@ -48,11 +48,17 @@ echo ""
 echo "━━━━ Scene 3: We scan ourselves too (dogfood) ━━━━"
 echo ""
 sleep 1
-echo "# Historical dogfood: npm install claim was BLOCK until Node port + bin was verified."
-echo "# Now PASS via npx/npm. The receipt forced the fix."
+echo "# Historical dogfood: our npm install claim was BLOCK — then the fix arrived."
 sleep 2
-echo "$ node src/cli.ts check tests/fixtures/motivation-raises-truth-confidence.able"
-node "$REPO/src/cli.ts" check tests/fixtures/motivation-raises-truth-confidence.able 2>&1 || true
+echo "$ node src/cli.ts check examples/ablesyn-self-npm-claim-historical.able   # before fix"
+node "$REPO/src/cli.ts" check "$REPO/examples/ablesyn-self-npm-claim-historical.able" 2>&1 || true
+sleep 2
+
+echo ""
+echo "$ node src/cli.ts check examples/ablesyn-self-npm-claim.able              # after fix"
+node "$REPO/src/cli.ts" check "$REPO/examples/ablesyn-self-npm-claim.able"
+sleep 1
+echo "# The receipt forced the fix. Now PASS via npx/npm (byte-verified)."
 sleep 2
 
 echo ""

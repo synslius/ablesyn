@@ -1,0 +1,22 @@
+claim ablesyn_npm_runnable "ablesyn is installable and runnable via npx by a stranger (npx ablesyn@0.1.0 check)" {
+  layer BEHAVIOR
+  affordance {
+    can run_checker_via_npx_zero_clone
+  }
+  belief {
+    confidence 0.9
+    source verified_execution
+    note "this is the dogfood claim: the tool that judges others judges its own distribution"
+  }
+  limit {
+    soft requires_network_for_first_npx_fetch
+  }
+  evidence {
+    observed npm_published "ablesyn@0.1.0 on registry.npmjs.org"
+    observed npx_execution_ran_checker "npx ablesyn@0.1.0 check executed and returned ablesyn diagnostics"
+    observed shebang_node "dist bin shebang is node not bun (commit a0b26fc)"
+  }
+  verdict PASS {
+    reason "distribution claim is evidence-bound: published version + a real npx run that executed the checker"
+  }
+}
