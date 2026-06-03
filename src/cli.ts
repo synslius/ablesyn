@@ -1,7 +1,7 @@
 import { checkDocument } from "./check.ts";
 import { parseAble } from "./parse.ts";
 import { translateDocument, type TranslationTarget } from "./translate.ts";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -12,7 +12,42 @@ if (!command || command === "--help" || command === "-h") {
 }
 
 if (command === "version") {
-  console.log("ablesyn 0.1.0");
+  console.log("ablesyn 0.1.1");
+  process.exit(0);
+}
+
+if (command === "demo") {
+  // Zero-config showcase: run the .able files that ship inside the package
+  // through the same parse + check path the `check` command uses, so a stranger
+  // can `npx ablesyn demo` and watch the verdicts land with no input.
+  const examplesDir = new URL("../examples/", import.meta.url);
+  let names: string[];
+  try {
+    names = (await readdir(examplesDir)).filter((name) => name.endsWith(".able")).sort();
+  } catch {
+    console.error("demo: bundled examples/ not found alongside the ablesyn install.");
+    process.exit(1);
+  }
+  if (names.length === 0) {
+    console.error("demo: no bundled .able examples were found.");
+    process.exit(1);
+  }
+  console.log("ablesyn demo — bundled .able claims run through the checker\n");
+  for (const name of names) {
+    const source = await readFile(new URL(name, examplesDir), "utf8");
+    const document = parseAble(source, `examples/${name}`);
+    const result = checkDocument(document);
+    const verdicts = document.claims.map((claim) => claim.verdict?.status ?? "UNKNOWN").join(", ");
+    const errors = result.diagnostics.filter((diagnostic) => diagnostic.severity === "error").length;
+    const warnings = result.diagnostics.filter((diagnostic) => diagnostic.severity === "warning").length;
+    const counts = [
+      errors ? `${errors} error${errors === 1 ? "" : "s"}` : "",
+      warnings ? `${warnings} warning${warnings === 1 ? "" : "s"}` : ""
+    ].filter(Boolean).join(", ");
+    console.log(`  [${result.ok ? "ok  " : "FAIL"}] examples/${name}`);
+    console.log(`         declared ${verdicts}${counts ? `  (check: ${counts})` : "  (check: clean)"}`);
+  }
+  console.log(`\n${names.length} example(s). Full contract: \`ablesyn check <file.able>\` or \`ablesyn translate <file.able> --to en\`.`);
   process.exit(0);
 }
 
@@ -117,5 +152,6 @@ Usage:
   bun run ablesyn parse <file.able> [--json]
   bun run ablesyn check <file.able> [...]
   bun run ablesyn translate <file.able> --to en|zh
+  ablesyn demo                              run the bundled example claims (no args)
 `);
 }

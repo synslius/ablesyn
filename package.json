@@ -1,10 +1,10 @@
 {
   "name": "ablesyn",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "type": "module",
   "description": "A small evidence contract language for agent capability, belief, limits, probes, and verdicts.",
-  "author": "Hengyaun Zhu",
+  "author": "Hengyuan Zhu",
   "repository": {
     "type": "git",
     "url": "https://github.com/synslius/ablesyn.git"
@@ -14,7 +14,8 @@
     "ablesyn": "./dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "examples"
   ],
   "scripts": {
     "ablesyn": "bun run src/cli.ts",
