@@ -180,6 +180,66 @@ test("adjudicate never throws on the minimal claim and maps a checker crash to B
   expect(result!.rules_fired.map((r) => r.code)).toContain("ADJUDICATE_THREW");
 });
 
+// --- scalar-coercion + malformed-confidence + throwing-getter regressions ---
+
+test("scalar args:'self_report' on an observed PASS adjudicates to FLAG (W7-A1)", () => {
+  // The args field is a SCALAR string, not an array. It MUST be coerced to a
+  // single-element array so the self_report token survives — otherwise the
+  // token is erased and the claim escapes SELF_REPORT_IS_NOT_AUTHORITY,
+  // adjudicating to PASS_UNVERIFIED instead of FLAG.
+  const claim: RawClaim = {
+    id: "scalar_self_report",
+    layer: "BEHAVIOR",
+    evidence: [{ kind: "observed", args: "self_report" as unknown as string[] }],
+    verdict: { status: "PASS" }
+  };
+  const result = adjudicate(claim);
+  expect(result.verdict_claimed).toBe("PASS");
+  expect(result.verdict_adjudicated).toBe("FLAG");
+  expect(result.hard_structural).toBe(false);
+  expect(result.rules_fired.map((r) => r.code)).toContain("SELF_REPORT_IS_NOT_AUTHORITY");
+});
+
+test("belief.confidence:'high' (present-but-non-number) adjudicates to BLOCK (W7-A2)", () => {
+  // A present non-number confidence must NOT be dropped to undefined: it has to
+  // reach the checker so Number.isFinite fails and INVALID_CONFIDENCE
+  // (HARD_STRUCTURAL → BLOCK) fires. Dropping it would let the claim survive as
+  // PASS_UNVERIFIED.
+  const claim: RawClaim = {
+    id: "string_confidence",
+    layer: "BEHAVIOR",
+    belief: { confidence: "high" as unknown as number },
+    evidence: [{ kind: "observed", args: ["real_thing"] }],
+    verdict: { status: "PASS" }
+  };
+  const result = adjudicate(claim);
+  expect(result.verdict_adjudicated).toBe("BLOCK");
+  expect(result.hard_structural).toBe(true);
+  expect(result.rules_fired.map((r) => r.code)).toContain("INVALID_CONFIDENCE");
+});
+
+test("poisoned throwing id getter returns BLOCK+ADJUDICATE_THREW and does not throw (W7-A3)", () => {
+  // The id read happens INSIDE the try: a throwing getter on `id` must degrade
+  // to a fail-closed BLOCK receipt, never propagate out of adjudicate().
+  const poisoned = Object.defineProperty({} as RawClaim, "id", {
+    enumerable: true,
+    get() {
+      throw new Error("poisoned id getter");
+    }
+  });
+  poisoned.layer = "BEHAVIOR";
+  poisoned.evidence = [{ kind: "observed", args: ["x"] }];
+  poisoned.verdict = { status: "PASS" };
+  let result: ReturnType<typeof adjudicate> | undefined;
+  expect(() => {
+    result = adjudicate(poisoned);
+  }).not.toThrow();
+  expect(result!.verdict_adjudicated).toBe("BLOCK");
+  expect(result!.hard_structural).toBe(true);
+  expect(result!.claim_id).toBe("");
+  expect(result!.rules_fired.map((r) => r.code)).toContain("ADJUDICATE_THREW");
+});
+
 // --- DOWNGRADE_CODES composition --------------------------------------------
 
 test("DOWNGRADE_CODES = CHECK_ERROR_CODES union the two extra SLI codes", () => {

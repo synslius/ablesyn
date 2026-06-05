@@ -107,6 +107,13 @@ export interface Adjudication {
 const EVIDENCE_KINDS = new Set(["observed", "missing", "inferred", "external"]);
 
 function toStringArray(value: unknown): string[] {
+  // A SCALAR string is a single-element array, not empty: a worker that emits
+  // `args: "self_report"` (scalar) must NOT have the token silently dropped, or
+  // a self-report PASS escapes the SELF_REPORT_IS_NOT_AUTHORITY downgrade. Same
+  // for scalar belief.sources / limit.unknown.
+  if (typeof value === "string") {
+    return [value];
+  }
   if (!Array.isArray(value)) {
     return [];
   }
@@ -205,8 +212,12 @@ export function claimToDocument(claim: RawClaim): AbleDocument {
   normalized.affordance = toStringArray(raw.affordance);
 
   if (raw.belief && typeof raw.belief === "object") {
-    if (typeof raw.belief.confidence === "number") {
-      normalized.belief.confidence = raw.belief.confidence;
+    // Do NOT drop a present-but-non-number confidence (e.g. "high", "0.8"):
+    // pass it THROUGH so the checker's Number.isFinite test fires
+    // INVALID_CONFIDENCE → BLOCK rather than silently swallowing the malformed
+    // value. The cast lets the malformed value reach the checker unchanged.
+    if (raw.belief.confidence !== undefined) {
+      normalized.belief.confidence = raw.belief.confidence as AbleClaim["belief"]["confidence"];
     }
     normalized.belief.sources = toStringArray(raw.belief.sources);
     normalized.belief.notes = toStringArray(raw.belief.notes);
@@ -294,17 +305,26 @@ function claimedVerdict(claim: RawClaim): "PASS" | "FLAG" | "BLOCK" | undefined 
  * maps to BLOCK with an ADJUDICATE_THREW rule rather than propagating.
  */
 export function adjudicate(claim: RawClaim): Adjudication {
-  const claim_id =
-    claim && typeof claim === "object" && typeof claim.id === "string" ? claim.id : "";
-  const verdict_claimed = claimedVerdict(claim);
+  // The id/verdict reads live INSIDE the try: a poisoned THROWING getter on
+  // `claim.id` or `claim.verdict.status` must degrade to a fail-closed BLOCK
+  // receipt, never escape the catch. The catch defaults them so a throwing
+  // getter still yields a well-formed ADJUDICATE_THREW/BLOCK.
+  let claim_id = "";
+  let verdict_claimed: "PASS" | "FLAG" | "BLOCK" | undefined;
 
   let projected: ReturnType<typeof projectResult>;
   try {
+    claim_id =
+      claim && typeof claim === "object" && typeof claim.id === "string" ? claim.id : "";
+    verdict_claimed = claimedVerdict(claim);
+
     const document = claimToDocument(claim);
     const result = checkDocument(document);
     projected = projectResult(result, claim_id);
   } catch (cause) {
-    // Fail-closed (CODE): a checker crash becomes a BLOCK, never a throw.
+    // Fail-closed (CODE): a checker crash — or a throwing getter on id/verdict —
+    // becomes a BLOCK, never a throw. claim_id falls back to "" and
+    // verdict_claimed to undefined if the read itself threw.
     const message = cause instanceof Error ? cause.message : String(cause);
     return {
       claim_id,
