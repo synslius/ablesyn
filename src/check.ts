@@ -20,6 +20,32 @@ const TRUTH_CONFIDENCE_EFFECTS = new Set([
   "upgrade_truth"
 ]);
 
+/**
+ * The complete set of error-severity rule codes `checkDocument` can emit via
+ * `error(...)`. This is the single exported registry (P1 fix — replaces the
+ * fail-open grep): downstream policy (e.g. the SLI `DOWNGRADE_CODES`) imports
+ * this instead of scraping string literals out of source, since some codes live
+ * on the line after `error(` and defeat any line-oriented grep.
+ *
+ * Rule logic is unchanged — these literals are exactly the ones passed to
+ * `error(...)` below. A test pins `CHECK_ERROR_CODES.length === 11`.
+ */
+export const CHECK_ERROR_CODES = [
+  "NO_CLAIMS",
+  "INVALID_CLAIM_ID",
+  "MISSING_LAYER",
+  "INVALID_LAYER",
+  "MISSING_VERDICT",
+  "INVALID_VERDICT",
+  "INVALID_CONFIDENCE",
+  "MOTIVATION_RAISES_TRUTH_CONFIDENCE",
+  "PASS_WITH_MISSING_EVIDENCE",
+  "PASS_WITHOUT_EVIDENCE",
+  "SELF_REPORT_IS_NOT_AUTHORITY"
+] as const;
+
+export type CheckErrorCode = (typeof CHECK_ERROR_CODES)[number];
+
 export interface CheckResult {
   ok: boolean;
   diagnostics: AbleDiagnostic[];
