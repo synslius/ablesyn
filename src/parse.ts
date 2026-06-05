@@ -225,7 +225,15 @@ function applyFrameEntry(claim: AbleClaim, key: string, args: string[], value: s
   claim.frame = frame;
 }
 
-function makeClaim(id: string, title?: string): AbleClaim {
+/**
+ * Builds an AbleClaim with every nested field pre-filled to a valid empty
+ * default. This is the single source of truth for the five fields the checker
+ * dereferences (`belief.sources`, `limit.unknown`, `evidence`, `probe.next`,
+ * `verdict`), shared by `makeClaim` (parser) and `claimToDocument`
+ * (adjudicate). Keeping one builder means a second producer can backfill a
+ * partial worker claim against exactly the defaults the parser uses.
+ */
+export function defaultClaim(id: string, title?: string): AbleClaim {
   return {
     type: "claim",
     id,
@@ -246,6 +254,10 @@ function makeClaim(id: string, title?: string): AbleClaim {
       next: []
     }
   };
+}
+
+function makeClaim(id: string, title?: string): AbleClaim {
+  return defaultClaim(id, title);
 }
 
 function isBlockName(name: string): name is BlockName {
